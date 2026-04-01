@@ -10,8 +10,8 @@ const DEFAULT_DATA = {
     "Aadhaar": [
       { "name": "Update Aadhaar", "url": "https://myaadhaar.uidai.gov.in/", "desc": "Update name, address, DOB, mobile in Aadhaar", "keywords": ["aadhaar update","adhar","uid","biometric","address change","name correction","uidai"] },
       { "name": "Download Aadhaar", "url": "https://myaadhaar.uidai.gov.in/genricDownloadAadhaar", "desc": "Download e-Aadhaar PDF", "keywords": ["download aadhaar","eaadhaar","print aadhaar","adhar download"] },
-      { "name": "Check Aadhaar Status", "url": "https://myaadhaar.uidai.gov.in/CheckAadhaarStatus", "desc": "Track update request / enrolment status", "keywords": ["aadhaar status","urn","enrolment number","track aadhaar"] },
-      { "name": "Book Aadhaar Appointment", "url": "https://appointments.uidai.gov.in/", "desc": "Book appointment at nearest Aadhaar Seva Kendra", "keywords": ["appointment aadhaar","seva kendra","centre booking","enroll"] },
+      { "name": "Check Aadhaar Validity", "url": "https://myaadhaar.uidai.gov.in/check-aadhaar-validity/en", "desc": "Check the validity of Aadhar", "keywords": ["aadhaar status","adhar validity","validity","urn","enrolment number","track aadhaar"] },
+      { "name": "Order PVC Aadhar Card", "url": "https://myaadhaar.uidai.gov.in/", "desc": "Order for a PVC Aadhar card", "keywords": ["PVC adhaar","seva kendra","centre booking","enroll"] },
       { "name": "Verify Aadhaar", "url": "https://myaadhaar.uidai.gov.in/verifyAadhaar", "desc": "Verify if an Aadhaar number is genuine", "keywords": ["verify aadhaar","check genuine","validate uid"] },
       { "name": "Lock / Unlock Aadhaar", "url": "https://myaadhaar.uidai.gov.in/lock-unlock-aadhaar", "desc": "Lock biometric or UID for security", "keywords": ["lock aadhaar","unlock biometric","security aadhaar"] }
     ],
