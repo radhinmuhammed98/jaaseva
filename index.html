@@ -1,423 +1,288 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CSC Dashboard</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Sora:wght@400;500;600;700&display=swap');
-
-  :root {
-    --bg:       #0d0f14;
-    --surface:  #141720;
-    --card:     #1a1e2e;
-    --border:   #252a3a;
-    --border2:  #2e3450;
-    --text:     #e2e8f0;
-    --muted:    #6b7499;
-    --muted2:   #4a5070;
-    --accent:   #4f8cff;
-    --accent2:  #7c5cfc;
-    --green:    #34d399;
-    --yellow:   #fbbf24;
-    --red:      #f87171;
-    --pink:     #f472b6;
-    --cyan:     #22d3ee;
-    --orange:   #fb923c;
-    --mono:     'JetBrains Mono', monospace;
-    --sans:     'Sora', sans-serif;
-  }
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: var(--sans);
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    font-size: 14px;
-    line-height: 1.5;
-  }
-
-  /* ── HEADER ── */
-  .header {
-    position: sticky; top: 0; z-index: 100;
-    background: rgba(13,15,20,0.95);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border);
-    padding: 10px 16px;
-    display: flex; align-items: center; gap: 12px;
-  }
-  .logo {
-    font-family: var(--mono);
-    font-weight: 600; font-size: 15px;
-    color: var(--accent);
-    white-space: nowrap;
-    letter-spacing: -0.5px;
-  }
-  .logo span { color: var(--muted); font-weight: 400; }
-  .search-wrap {
-    flex: 1; position: relative;
-  }
-  .search-wrap input {
-    width: 100%;
-    background: var(--card);
-    border: 1px solid var(--border2);
-    border-radius: 8px;
-    padding: 8px 12px 8px 36px;
-    color: var(--text);
-    font-family: var(--sans);
-    font-size: 13px;
-    outline: none;
-    transition: border-color .15s;
-  }
-  .search-wrap input:focus { border-color: var(--accent); }
-  .search-wrap input::placeholder { color: var(--muted2); }
-  .search-icon {
-    position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
-    color: var(--muted); font-size: 15px; pointer-events: none;
-  }
-  .search-key {
-    position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
-    font-family: var(--mono); font-size: 10px; color: var(--muted2);
-    background: var(--border); border-radius: 4px; padding: 1px 5px;
-  }
-  .header-actions { display: flex; gap: 8px; }
-  .btn-icon {
-    background: var(--card); border: 1px solid var(--border2);
-    color: var(--muted); border-radius: 7px;
-    padding: 7px 10px; cursor: pointer; font-size: 15px;
-    transition: all .15s; white-space: nowrap;
-    font-family: var(--sans); font-size: 12px;
-    display: flex; align-items: center; gap: 5px;
-  }
-  .btn-icon:hover { border-color: var(--accent); color: var(--accent); }
-
-  /* ── LAYOUT ── */
-  .main { max-width: 1100px; margin: 0 auto; padding: 16px; }
-
-  /* ── QUICK BAR ── */
-  .quick-bar {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 12px 14px;
-    margin-bottom: 16px;
-  }
-  .quick-bar-title {
-    font-size: 10px; font-weight: 600;
-    text-transform: uppercase; letter-spacing: 1px;
-    color: var(--muted); margin-bottom: 10px;
-    display: flex; align-items: center; gap: 6px;
-  }
-  .quick-links {
-    display: flex; flex-wrap: wrap; gap: 8px;
-  }
-  .quick-link {
-    background: var(--card);
-    border: 1px solid var(--border2);
-    border-radius: 7px; padding: 6px 12px;
-    color: var(--text); font-size: 12px; cursor: pointer;
-    text-decoration: none; transition: all .15s;
-    display: flex; align-items: center; gap: 6px;
-    white-space: nowrap;
-  }
-  .quick-link:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
-  .quick-link .ql-cat { color: var(--muted); font-size: 10px; }
-
-  /* ── SEARCH RESULTS ── */
-  .search-results {
-    display: none;
-    background: var(--surface);
-    border: 1px solid var(--border2);
-    border-radius: 12px;
-    padding: 12px;
-    margin-bottom: 16px;
-  }
-  .search-results.active { display: block; }
-  .search-results-title {
-    font-size: 10px; font-weight: 600; text-transform: uppercase;
-    letter-spacing: 1px; color: var(--muted); margin-bottom: 10px;
-  }
-  .search-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 8px;
-  }
-  .search-result-item {
-    background: var(--card); border: 1px solid var(--border2);
-    border-radius: 8px; padding: 10px 12px;
-    cursor: pointer; text-decoration: none;
-    transition: all .15s; display: block;
-  }
-  .search-result-item:hover { border-color: var(--accent); transform: translateY(-1px); }
-  .sri-name { color: var(--text); font-size: 13px; font-weight: 500; }
-  .sri-path { color: var(--muted); font-size: 10px; margin-top: 3px; font-family: var(--mono); }
-  .no-results { color: var(--muted); font-size: 13px; text-align: center; padding: 20px; }
-
-  /* ── CATEGORY GRID ── */
-  .categories-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 12px;
-  }
-
-  /* ── CATEGORY CARD ── */
-  .cat-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-    transition: border-color .15s;
-  }
-  .cat-card:hover { border-color: var(--border2); }
-
-  .cat-header {
-    padding: 12px 14px;
-    cursor: pointer;
-    display: flex; align-items: center; gap: 10px;
-    user-select: none;
-    transition: background .1s;
-  }
-  .cat-header:hover { background: rgba(255,255,255,.03); }
-  .cat-icon {
-    width: 34px; height: 34px; border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 17px; flex-shrink: 0;
-  }
-  .cat-info { flex: 1; }
-  .cat-name { font-weight: 600; font-size: 14px; }
-  .cat-count { font-size: 10px; color: var(--muted); margin-top: 1px; font-family: var(--mono); }
-  .cat-arrow {
-    color: var(--muted); font-size: 12px;
-    transition: transform .2s; flex-shrink: 0;
-  }
-  .cat-card.open .cat-arrow { transform: rotate(90deg); }
-
-  /* color bar top */
-  .cat-card::before {
-    content: ''; display: block; height: 3px;
-  }
-
-  .cat-body {
-    display: none;
-    border-top: 1px solid var(--border);
-  }
-  .cat-card.open .cat-body { display: block; }
-
-  /* ── SUBCAT ── */
-  .subcat {
-    border-bottom: 1px solid var(--border);
-  }
-  .subcat:last-child { border-bottom: none; }
-
-  .subcat-header {
-    padding: 9px 14px 9px 20px;
-    cursor: pointer;
-    display: flex; align-items: center; gap: 8px;
-    user-select: none;
-    transition: background .1s;
-  }
-  .subcat-header:hover { background: rgba(255,255,255,.03); }
-  .subcat-dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: var(--muted2); flex-shrink: 0;
-    transition: background .15s;
-  }
-  .subcat.open .subcat-dot { background: currentColor; }
-  .subcat-name { font-size: 12px; font-weight: 500; flex: 1; color: var(--text); }
-  .subcat-count { font-size: 10px; color: var(--muted2); font-family: var(--mono); }
-  .subcat-arrow {
-    color: var(--muted2); font-size: 10px;
-    transition: transform .2s;
-  }
-  .subcat.open .subcat-arrow { transform: rotate(90deg); }
-
-  .subcat-links {
-    display: none;
-    padding: 6px 14px 10px 34px;
-    display: none;
-  }
-  .subcat.open .subcat-links { display: block; }
-
-  /* ── LINK ITEM ── */
-  .link-item {
-    display: flex; align-items: center; gap: 8px;
-    padding: 6px 0;
-    border-bottom: 1px solid rgba(255,255,255,.04);
-  }
-  .link-item:last-child { border-bottom: none; }
-  .link-a {
-    flex: 1;
-    color: var(--text);
-    text-decoration: none;
-    font-size: 13px;
-    padding: 4px 8px;
-    border-radius: 6px;
-    transition: all .12s;
-    display: flex; align-items: center; gap: 7px;
-  }
-  .link-a:hover { background: rgba(79,140,255,.12); color: var(--accent); }
-  .link-a::before {
-    content: '↗'; font-size: 10px; color: var(--muted2); flex-shrink: 0;
-  }
-  .fav-btn {
-    background: none; border: none; cursor: pointer;
-    color: var(--muted2); font-size: 15px;
-    padding: 4px; border-radius: 5px;
-    transition: all .12s; line-height: 1;
-  }
-  .fav-btn:hover { color: var(--yellow); }
-  .fav-btn.active { color: var(--yellow); }
-
-  /* ── FAVORITES ── */
-  .favs-section {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 12px 14px;
-    margin-bottom: 16px;
-    display: none;
-  }
-  .favs-section.has-favs { display: block; }
-  .favs-title {
-    font-size: 10px; font-weight: 600; text-transform: uppercase;
-    letter-spacing: 1px; color: var(--yellow); margin-bottom: 10px;
-    display: flex; align-items: center; gap: 6px;
-  }
-  .favs-grid {
-    display: flex; flex-wrap: wrap; gap: 8px;
-  }
-  .fav-link {
-    background: var(--card);
-    border: 1px solid rgba(251,191,36,.2);
-    border-radius: 7px; padding: 6px 12px;
-    color: var(--text); font-size: 12px; cursor: pointer;
-    text-decoration: none; transition: all .15s;
-    display: flex; align-items: center; gap: 6px;
-  }
-  .fav-link:hover { border-color: var(--yellow); color: var(--yellow); transform: translateY(-1px); }
-  .fav-link .fl-path { color: var(--muted); font-size: 10px; }
-
-  /* ── MODAL ── */
-  .modal-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,.7); z-index: 200;
-    align-items: center; justify-content: center; padding: 20px;
-  }
-  .modal-overlay.active { display: flex; }
-  .modal {
-    background: var(--card); border: 1px solid var(--border2);
-    border-radius: 14px; padding: 24px;
-    max-width: 520px; width: 100%;
-    max-height: 80vh; overflow-y: auto;
-  }
-  .modal h2 { font-size: 16px; margin-bottom: 16px; }
-  .modal textarea {
-    width: 100%; height: 320px;
-    background: var(--bg); border: 1px solid var(--border2);
-    border-radius: 8px; padding: 12px;
-    color: var(--text); font-family: var(--mono); font-size: 12px;
-    outline: none; resize: vertical; line-height: 1.6;
-  }
-  .modal textarea:focus { border-color: var(--accent); }
-  .modal-actions { display: flex; gap: 10px; margin-top: 14px; justify-content: flex-end; }
-  .btn {
-    padding: 8px 18px; border-radius: 8px;
-    font-family: var(--sans); font-size: 13px; font-weight: 500;
-    cursor: pointer; border: none; transition: all .15s;
-  }
-  .btn-primary { background: var(--accent); color: #fff; }
-  .btn-primary:hover { opacity: .88; }
-  .btn-ghost {
-    background: var(--surface); color: var(--muted);
-    border: 1px solid var(--border2);
-  }
-  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
-  .btn-danger { background: var(--red); color: #fff; }
-
-  /* ── TOAST ── */
-  .toast {
-    position: fixed; bottom: 20px; right: 20px; z-index: 300;
-    background: var(--card); border: 1px solid var(--border2);
-    border-radius: 10px; padding: 12px 18px;
-    font-size: 13px; color: var(--text);
-    transform: translateY(80px); opacity: 0;
-    transition: all .25s; pointer-events: none;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .toast.show { transform: translateY(0); opacity: 1; }
-
-  /* ── FOOTER ── */
-  .footer {
-    text-align: center; padding: 24px 16px;
-    color: var(--muted2); font-size: 11px; font-family: var(--mono);
-  }
-
-  /* ── MOBILE ── */
-  @media (max-width: 600px) {
-    .header { flex-wrap: wrap; }
-    .logo { font-size: 13px; }
-    .search-key { display: none; }
-    .categories-grid { grid-template-columns: 1fr; }
-    .search-grid { grid-template-columns: 1fr; }
-    .header-actions .btn-icon span { display: none; }
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Janaseva Kendram — CSC Dashboard</title>
+  <meta name="description" content="CSC Operations Dashboard — Thennala Westbazar">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- HEADER -->
+<!-- ═══════════════════════════ HEADER ═══════════════════════════ -->
 <header class="header">
-  <div class="logo">CSC<span>//</span>OPS</div>
+
+  <div class="brand">
+    <!-- Replace logo.png with your actual logo file -->
+    <img src="logo.png" alt="Janaseva Kendram Logo" class="brand-logo"
+         onerror="this.style.display='none';document.getElementById('logoFallback').style.display='flex'">
+    <div class="brand-logo-placeholder" id="logoFallback" style="display:none">🏛</div>
+    <div class="brand-text">
+      <div class="brand-name">Janaseva Kendram</div>
+      <div class="brand-sub">Thennala Westbazar · CSC Center</div>
+    </div>
+  </div>
+
   <div class="search-wrap">
     <span class="search-icon">⌕</span>
-    <input type="text" id="searchInput" placeholder="Search services, tasks..." autocomplete="off">
-    <span class="search-key">/ to focus</span>
+    <input type="text" id="searchInput" placeholder="Search any service... (press / to focus)"
+           autocomplete="off" oninput="onSearch(this.value)">
+    <button class="search-clear" id="searchClear" onclick="clearSearch()" title="Clear search">✕</button>
   </div>
-  <div class="header-actions">
-    <button class="btn-icon" onclick="openModal()">⚙ <span>Edit Data</span></button>
-    <button class="btn-icon" onclick="exportData()">↓ <span>Export</span></button>
+
+  <div class="header-right">
+    <div class="contact-badge">
+      <span class="phone-icon">📞</span>
+      <span>Ismail KV — 9847816928</span>
+    </div>
+    <button class="btn-header" onclick="exportData()" title="Export data as JSON">
+      ↓ <span>Export</span>
+    </button>
+    <button class="btn-header" onclick="openImport()" title="Import JSON data">
+      ↑ <span>Import</span>
+    </button>
   </div>
+
 </header>
 
+<!-- ═══════════════════════════ MAIN ═══════════════════════════ -->
 <main class="main">
 
-  <!-- FAVORITES -->
-  <section class="favs-section" id="favsSection">
-    <div class="favs-title">⭐ Favorites</div>
-    <div class="favs-grid" id="favsGrid"></div>
+  <!-- FAVORITES STRIP -->
+  <section class="strip" id="favsSection">
+    <div class="strip-title"><span>⭐</span> Favorites</div>
+    <div class="strip-links" id="favsLinks"></div>
   </section>
 
-  <!-- QUICK RECENT -->
-  <section class="quick-bar" id="quickBar">
-    <div class="quick-bar-title">⚡ Recently Used</div>
-    <div class="quick-links" id="quickLinks">
-      <span style="color:var(--muted2);font-size:12px">Links you click will appear here</span>
+  <!-- RECENT STRIP -->
+  <section class="strip">
+    <div class="strip-title"><span>⚡</span> Recently Used</div>
+    <div class="strip-links" id="recentLinks">
+      <span class="empty-strip">Links you click will appear here for quick access</span>
     </div>
   </section>
 
-  <!-- SEARCH RESULTS -->
-  <section class="search-results" id="searchResults">
-    <div class="search-results-title" id="searchResultsTitle">Search Results</div>
+  <!-- SEARCH RESULTS PANE -->
+  <section id="searchPane">
+    <div class="search-header">
+      <div class="search-header-text" id="searchTitle"></div>
+    </div>
     <div class="search-grid" id="searchGrid"></div>
   </section>
 
-  <!-- CATEGORIES -->
-  <div class="categories-grid" id="categoriesGrid"></div>
+  <!-- CATEGORIES PANE -->
+  <div id="categoriesPane">
+    <div class="cats-grid" id="catsGrid"></div>
+  </div>
 
 </main>
 
-<div class="footer">CSC Operations Dashboard · Press <kbd style="background:var(--border);padding:1px 6px;border-radius:3px;font-family:var(--mono)">/</kbd> to search</div>
+<!-- ═══════════════════════════ MODALS ═══════════════════════════ -->
 
-<!-- EDIT MODAL -->
-<div class="modal-overlay" id="modalOverlay">
+<!-- ADD CATEGORY -->
+<div class="overlay" id="modalAddCat">
   <div class="modal">
-    <h2>📋 Edit Service Data (JSON)</h2>
-    <textarea id="jsonEditor" spellcheck="false"></textarea>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveData()">Save & Apply</button>
+    <div class="modal-header">
+      <div class="modal-title">➕ Add New Category</div>
+      <button class="modal-close" onclick="closeModal('modalAddCat')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Category Name</label>
+        <input class="form-input" id="addCatName" placeholder="e.g. Banking Services" maxlength="60">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Icon (Emoji)</label>
+        <input class="form-input" id="addCatIcon" placeholder="Paste emoji, e.g. 🏦" maxlength="4" style="font-size:20px">
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px" id="addCatIconGrid"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Color</label>
+        <div class="color-row" id="addCatColorRow"></div>
+        <input type="hidden" id="addCatColor" value="#3b82f6">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalAddCat')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAddCat()">Add Category</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT CATEGORY -->
+<div class="overlay" id="modalEditCat">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">⚙ Edit Category</div>
+      <button class="modal-close" onclick="closeModal('modalEditCat')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Category Name</label>
+        <input class="form-input" id="editCatName" maxlength="60">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Icon (Emoji)</label>
+        <input class="form-input" id="editCatIcon" maxlength="4" style="font-size:20px">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Color</label>
+        <div class="color-row" id="editCatColorRow"></div>
+        <input type="hidden" id="editCatColor">
+      </div>
+      <div class="danger-zone">
+        <div class="danger-zone-title">⚠ Danger Zone</div>
+        <button class="btn btn-danger" onclick="deleteCategory()" style="width:100%">
+          🗑 Delete This Category (and all links)
+        </button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalEditCat')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEditCat()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD SUBCATEGORY -->
+<div class="overlay" id="modalAddSubcat">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalAddSubcatTitle">Add Subcategory</div>
+      <button class="modal-close" onclick="closeModal('modalAddSubcat')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Subcategory Name</label>
+        <input class="form-input" id="addSubcatName" placeholder="e.g. Savings Account, Birth Certificate..."
+               maxlength="60" onkeydown="if(event.key==='Enter')saveAddSubcat()">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalAddSubcat')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAddSubcat()">Add Subcategory</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT SUBCATEGORY -->
+<div class="overlay" id="modalEditSubcat">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">✏ Rename Subcategory</div>
+      <button class="modal-close" onclick="closeModal('modalEditSubcat')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <div style="font-size:12px;color:var(--text3);padding:4px 0" id="editSubcatCatName"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">New Subcategory Name</label>
+        <input class="form-input" id="editSubcatName" maxlength="60"
+               onkeydown="if(event.key==='Enter')saveEditSubcat()">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalEditSubcat')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEditSubcat()">Rename</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD LINK -->
+<div class="overlay" id="modalAddLink">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalAddLinkTitle">Add Link</div>
+      <button class="modal-close" onclick="closeModal('modalAddLink')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Service Name *</label>
+        <input class="form-input" id="addLinkName" placeholder="e.g. Pay Water Bill" maxlength="80">
+      </div>
+      <div class="form-group">
+        <label class="form-label">URL *</label>
+        <input class="form-input" id="addLinkUrl" placeholder="https://example.gov.in/" type="url">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-textarea" id="addLinkDesc" placeholder="Short description of what this service does, who can use it, what it requires..."></textarea>
+        <div class="form-hint">Helps with smart search — describe the service in plain words</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Search Keywords</label>
+        <input class="form-input" id="addLinkKeywords" placeholder="e.g. water bill, kwa, water tax, pay water (comma separated)">
+        <div class="form-hint">Add alternate names, Malayalam transliterations, misspellings etc.</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalAddLink')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAddLink()">Add Link</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT LINK -->
+<div class="overlay" id="modalEditLink">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">✏ Edit Link</div>
+      <button class="modal-close" onclick="closeModal('modalEditLink')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Service Name *</label>
+        <input class="form-input" id="editLinkName" maxlength="80">
+      </div>
+      <div class="form-group">
+        <label class="form-label">URL *</label>
+        <input class="form-input" id="editLinkUrl" type="url">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-textarea" id="editLinkDesc"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Search Keywords</label>
+        <input class="form-input" id="editLinkKeywords" placeholder="comma separated keywords">
+        <div class="form-hint">Add alternate names, transliterations, common misspellings</div>
+      </div>
+      <div class="danger-zone">
+        <div class="danger-zone-title">⚠ Danger Zone</div>
+        <button class="btn btn-danger" onclick="deleteLink()" style="width:100%">🗑 Delete This Link</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalEditLink')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEditLink()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- IMPORT -->
+<div class="overlay" id="modalImport">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📂 Import Data</div>
+      <button class="modal-close" onclick="closeModal('modalImport')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Select JSON File</label>
+        <input type="file" accept=".json" id="importFile" class="form-input" onchange="handleImport(event)">
+        <div class="form-hint">Import a previously exported janaseva-data.json file</div>
+      </div>
+      <div class="danger-zone">
+        <div class="danger-zone-title">⚠ Reset</div>
+        <button class="btn btn-danger" onclick="resetData()" style="width:100%">
+          🔄 Reset All Data to Default
+        </button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalImport')">Close</button>
     </div>
   </div>
 </div>
@@ -425,463 +290,8 @@
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<script>
-// ══════════════════════════════════════════
-//  DEFAULT DATA
-// ══════════════════════════════════════════
-const DEFAULT_DATA = {
-  "Bill Payments": {
-    "_icon": "💡",
-    "_color": "#4f8cff",
-    "Electricity": [
-      { "name": "Pay Bill",      "url": "https://www.nbpdcl.co.in/" },
-      { "name": "Quick Pay",     "url": "https://www.nbpdcl.co.in/" },
-      { "name": "View Complaint","url": "https://www.nbpdcl.co.in/" }
-    ],
-    "Water": [
-      { "name": "Pay Water Bill","url": "https://payjustice.in/" },
-      { "name": "New Connection","url": "https://payjustice.in/" }
-    ],
-    "Gas": [
-      { "name": "Book Cylinder", "url": "https://www.mylpg.in/" },
-      { "name": "Check Subsidy", "url": "https://www.mylpg.in/" }
-    ]
-  },
-  "Government Services": {
-    "_icon": "🏛️",
-    "_color": "#34d399",
-    "Aadhaar": [
-      { "name": "Update Aadhaar",   "url": "https://myaadhaar.uidai.gov.in/" },
-      { "name": "Download Aadhaar", "url": "https://myaadhaar.uidai.gov.in/genricDownloadAadhaar" },
-      { "name": "Check Status",     "url": "https://myaadhaar.uidai.gov.in/CheckAadhaarStatus" },
-      { "name": "Book Appointment", "url": "https://appointments.uidai.gov.in/" }
-    ],
-    "PAN Card": [
-      { "name": "New PAN (NSDL)",   "url": "https://www.onlineservices.nsdl.com/paam/endUserRegisterContact.html" },
-      { "name": "PAN Correction",   "url": "https://www.onlineservices.nsdl.com/paam/endUserRegisterContact.html" },
-      { "name": "Check PAN Status", "url": "https://tin.tin.nsdl.com/pantan/StatusTrack.html" },
-      { "name": "Link PAN-Aadhaar", "url": "https://eportal.incometax.gov.in/iec/foservices/#/pre-login/link-aadhaar" }
-    ],
-    "Passport": [
-      { "name": "Apply Passport",     "url": "https://passportindia.gov.in/AppOnlineProject/user/RegistrationPage" },
-      { "name": "Track Application",  "url": "https://passportindia.gov.in/AppOnlineProject/user/UserLoginPage" },
-      { "name": "Book Appointment",   "url": "https://passportindia.gov.in/AppOnlineProject/user/UserLoginPage" }
-    ],
-    "Voter ID": [
-      { "name": "Register Voter",    "url": "https://voters.eci.gov.in/" },
-      { "name": "Download EPIC",     "url": "https://voters.eci.gov.in/" },
-      { "name": "Voter List Search", "url": "https://electoralsearch.eci.gov.in/" }
-    ]
-  },
-  "Banking & Finance": {
-    "_icon": "🏦",
-    "_color": "#f472b6",
-    "India Post": [
-      { "name": "Open Savings A/C",  "url": "https://www.indiapost.gov.in/Financial/Pages/Content/Post-Office-Saving-Account.aspx" },
-      { "name": "Track Parcel",      "url": "https://www.indiapost.gov.in/VAS/Pages/IndiaPostHome.aspx" },
-      { "name": "PLI Premium",       "url": "https://pli.indiapost.gov.in/" }
-    ],
-    "Jan Dhan": [
-      { "name": "Account Opening",   "url": "https://pmjdy.gov.in/" },
-      { "name": "Balance Check",     "url": "https://pmjdy.gov.in/" }
-    ],
-    "Insurance": [
-      { "name": "PMJJBY Enrollment", "url": "https://www.jansuraksha.gov.in/" },
-      { "name": "PMSBY Enrollment",  "url": "https://www.jansuraksha.gov.in/" },
-      { "name": "APY Registration",  "url": "https://enps.nsdl.com/eNPS/NationalPensionSystem.html" }
-    ]
-  },
-  "Certificates": {
-    "_icon": "📄",
-    "_color": "#fbbf24",
-    "Income": [
-      { "name": "Apply Income Cert",  "url": "https://edistrict.kerala.gov.in/" },
-      { "name": "Check Status",       "url": "https://edistrict.kerala.gov.in/" }
-    ],
-    "Caste": [
-      { "name": "Apply Caste Cert",   "url": "https://edistrict.kerala.gov.in/" },
-      { "name": "Check Status",       "url": "https://edistrict.kerala.gov.in/" }
-    ],
-    "Residence": [
-      { "name": "Apply Residence",    "url": "https://edistrict.kerala.gov.in/" },
-      { "name": "Download Cert",      "url": "https://edistrict.kerala.gov.in/" }
-    ]
-  },
-  "Digital Services": {
-    "_icon": "💻",
-    "_color": "#22d3ee",
-    "DigiLocker": [
-      { "name": "Sign Up",           "url": "https://digilocker.gov.in/" },
-      { "name": "Login & Access",    "url": "https://digilocker.gov.in/" },
-      { "name": "Upload Document",   "url": "https://digilocker.gov.in/" }
-    ],
-    "UMANG": [
-      { "name": "Open UMANG",        "url": "https://web.umang.gov.in/" },
-      { "name": "Register User",     "url": "https://web.umang.gov.in/" }
-    ],
-    "eSign": [
-      { "name": "eSign Document",    "url": "https://esign.gov.in/" }
-    ]
-  },
-  "Health Services": {
-    "_icon": "🏥",
-    "_color": "#fb923c",
-    "Ayushman Bharat": [
-      { "name": "Check Eligibility", "url": "https://beneficiary.nha.gov.in/" },
-      { "name": "Get Card",          "url": "https://beneficiary.nha.gov.in/" },
-      { "name": "Find Hospital",     "url": "https://hospitals.pmjay.gov.in/" }
-    ],
-    "CoWIN": [
-      { "name": "Vaccination Cert",  "url": "https://cowin.gov.in/" }
-    ]
-  }
-};
-
-// ══════════════════════════════════════════
-//  STATE
-// ══════════════════════════════════════════
-let DATA = {};
-let FAVORITES = new Set();
-let RECENT = [];
-const MAX_RECENT = 8;
-
-function loadState() {
-  try {
-    const d = localStorage.getItem('csc_data');
-    DATA = d ? JSON.parse(d) : DEFAULT_DATA;
-  } catch { DATA = DEFAULT_DATA; }
-  try {
-    const f = localStorage.getItem('csc_favs');
-    FAVORITES = f ? new Set(JSON.parse(f)) : new Set();
-  } catch { FAVORITES = new Set(); }
-  try {
-    const r = localStorage.getItem('csc_recent');
-    RECENT = r ? JSON.parse(r) : [];
-  } catch { RECENT = []; }
-}
-
-function saveState() {
-  localStorage.setItem('csc_data', JSON.stringify(DATA));
-  localStorage.setItem('csc_favs', JSON.stringify([...FAVORITES]));
-  localStorage.setItem('csc_recent', JSON.stringify(RECENT));
-}
-
-// ══════════════════════════════════════════
-//  LINK KEY
-// ══════════════════════════════════════════
-function linkKey(cat, sub, name) { return `${cat}||${sub}||${name}`; }
-
-// ══════════════════════════════════════════
-//  RECENT
-// ══════════════════════════════════════════
-function addRecent(cat, sub, name, url) {
-  const key = linkKey(cat, sub, name);
-  RECENT = RECENT.filter(r => r.key !== key);
-  RECENT.unshift({ key, cat, sub, name, url });
-  if (RECENT.length > MAX_RECENT) RECENT.pop();
-  saveState();
-  renderQuick();
-}
-
-// ══════════════════════════════════════════
-//  RENDER QUICK
-// ══════════════════════════════════════════
-function renderQuick() {
-  const el = document.getElementById('quickLinks');
-  if (!RECENT.length) {
-    el.innerHTML = '<span style="color:var(--muted2);font-size:12px">Links you click will appear here</span>';
-    return;
-  }
-  el.innerHTML = RECENT.map(r => `
-    <a class="quick-link" href="${r.url}" target="_blank" rel="noopener"
-       onclick="addRecent('${esc(r.cat)}','${esc(r.sub)}','${esc(r.name)}','${esc(r.url)}')">
-      ${r.name}
-      <span class="ql-cat">${r.cat} › ${r.sub}</span>
-    </a>
-  `).join('');
-}
-
-// ══════════════════════════════════════════
-//  RENDER FAVORITES
-// ══════════════════════════════════════════
-function renderFavs() {
-  const section = document.getElementById('favsSection');
-  const grid = document.getElementById('favsGrid');
-  if (!FAVORITES.size) { section.classList.remove('has-favs'); return; }
-  section.classList.add('has-favs');
-  let html = '';
-  FAVORITES.forEach(key => {
-    const [cat, sub, name] = key.split('||');
-    const links = DATA[cat]?.[sub];
-    if (!links) return;
-    const link = links.find(l => l.name === name);
-    if (!link) return;
-    html += `
-      <a class="fav-link" href="${link.url}" target="_blank" rel="noopener"
-         onclick="addRecent('${esc(cat)}','${esc(sub)}','${esc(name)}','${esc(link.url)}')">
-        ⭐ ${name}
-        <span class="fl-path">${cat} › ${sub}</span>
-      </a>`;
-  });
-  grid.innerHTML = html || '';
-  if (!html) section.classList.remove('has-favs');
-}
-
-// ══════════════════════════════════════════
-//  TOGGLE FAV
-// ══════════════════════════════════════════
-function toggleFav(cat, sub, name, btn) {
-  const key = linkKey(cat, sub, name);
-  if (FAVORITES.has(key)) {
-    FAVORITES.delete(key);
-    btn.classList.remove('active');
-    showToast('Removed from favorites');
-  } else {
-    FAVORITES.add(key);
-    btn.classList.add('active');
-    showToast('⭐ Added to favorites');
-  }
-  saveState();
-  renderFavs();
-}
-
-// ══════════════════════════════════════════
-//  RENDER CATEGORIES
-// ══════════════════════════════════════════
-function esc(s) { return String(s).replace(/'/g,"&#39;").replace(/"/g,'&quot;'); }
-
-function countLinks(cat) {
-  let n = 0;
-  Object.entries(DATA[cat]).forEach(([k,v]) => { if (!k.startsWith('_') && Array.isArray(v)) n += v.length; });
-  return n;
-}
-
-function renderCategories() {
-  const grid = document.getElementById('categoriesGrid');
-  grid.innerHTML = Object.keys(DATA).map(cat => {
-    const obj = DATA[cat];
-    const icon = obj._icon || '📁';
-    const color = obj._color || '#4f8cff';
-    const total = countLinks(cat);
-
-    const subcats = Object.entries(obj).filter(([k]) => !k.startsWith('_'));
-
-    const subcatHTML = subcats.map(([sub, links]) => {
-      if (!Array.isArray(links)) return '';
-      const linksHTML = links.map(link => {
-        const key = linkKey(cat, sub, link.name);
-        const isFav = FAVORITES.has(key);
-        return `
-          <div class="link-item">
-            <a class="link-a"
-               href="${link.url}" target="_blank" rel="noopener"
-               onclick="addRecent('${esc(cat)}','${esc(sub)}','${esc(link.name)}','${esc(link.url)}')">
-              ${link.name}
-            </a>
-            <button class="fav-btn ${isFav?'active':''}"
-              onclick="toggleFav('${esc(cat)}','${esc(sub)}','${esc(link.name)}',this)"
-              title="${isFav?'Remove from':'Add to'} favorites">★</button>
-          </div>`;
-      }).join('');
-
-      return `
-        <div class="subcat" data-sub="${esc(sub)}">
-          <div class="subcat-header" onclick="toggleSubcat(this)">
-            <span class="subcat-dot" style="color:${color}"></span>
-            <span class="subcat-name">${sub}</span>
-            <span class="subcat-count">${links.length}</span>
-            <span class="subcat-arrow">▶</span>
-          </div>
-          <div class="subcat-links">${linksHTML}</div>
-        </div>`;
-    }).join('');
-
-    return `
-      <div class="cat-card" data-cat="${esc(cat)}" style="--cat-color:${color}">
-        <div style="height:3px;background:${color};border-radius:12px 12px 0 0"></div>
-        <div class="cat-header" onclick="toggleCat(this)">
-          <div class="cat-icon" style="background:${color}22">${icon}</div>
-          <div class="cat-info">
-            <div class="cat-name">${cat}</div>
-            <div class="cat-count">${subcats.length} subcategories · ${total} links</div>
-          </div>
-          <span class="cat-arrow">▶</span>
-        </div>
-        <div class="cat-body">${subcatHTML}</div>
-      </div>`;
-  }).join('');
-}
-
-function toggleCat(header) {
-  header.parentElement.classList.toggle('open');
-}
-function toggleSubcat(header) {
-  header.parentElement.classList.toggle('open');
-}
-
-// ══════════════════════════════════════════
-//  SEARCH
-// ══════════════════════════════════════════
-let searchTimeout;
-document.getElementById('searchInput').addEventListener('input', function() {
-  clearTimeout(searchTimeout);
-  searchTimeout = setTimeout(() => doSearch(this.value.trim()), 120);
-});
-
-function doSearch(q) {
-  const res = document.getElementById('searchResults');
-  const grid = document.getElementById('searchGrid');
-  const title = document.getElementById('searchResultsTitle');
-  const catGrid = document.getElementById('categoriesGrid');
-  const quickBar = document.getElementById('quickBar');
-  const favsSection = document.getElementById('favsSection');
-
-  if (!q) {
-    res.classList.remove('active');
-    catGrid.style.display = '';
-    quickBar.style.display = '';
-    if (FAVORITES.size) favsSection.classList.add('has-favs');
-    return;
-  }
-
-  catGrid.style.display = 'none';
-  quickBar.style.display = 'none';
-  favsSection.style.display = 'none';
-  res.classList.add('active');
-
-  const ql = q.toLowerCase();
-  const results = [];
-  Object.entries(DATA).forEach(([cat, obj]) => {
-    Object.entries(obj).forEach(([sub, links]) => {
-      if (sub.startsWith('_') || !Array.isArray(links)) return;
-      links.forEach(link => {
-        const score =
-          (link.name.toLowerCase().includes(ql) ? 2 : 0) +
-          (sub.toLowerCase().includes(ql) ? 1 : 0) +
-          (cat.toLowerCase().includes(ql) ? 1 : 0);
-        if (score) results.push({ cat, sub, link, score });
-      });
-    });
-  });
-
-  results.sort((a,b) => b.score - a.score);
-  title.textContent = `${results.length} result${results.length!==1?'s':''} for "${q}"`;
-
-  if (!results.length) {
-    grid.innerHTML = '<div class="no-results">No services found. Try different keywords.</div>';
-    return;
-  }
-
-  const color = cat => DATA[cat]?._color || '#4f8cff';
-  grid.innerHTML = results.map(({cat, sub, link}) => {
-    const key = linkKey(cat, sub, link.name);
-    const isFav = FAVORITES.has(key);
-    return `
-      <div style="position:relative">
-        <a class="search-result-item" href="${link.url}" target="_blank" rel="noopener"
-           style="border-left:3px solid ${color(cat)}"
-           onclick="addRecent('${esc(cat)}','${esc(sub)}','${esc(link.name)}','${esc(link.url)}')">
-          <div class="sri-name">${highlight(link.name, q)}</div>
-          <div class="sri-path">${cat} › ${highlight(sub, q)}</div>
-        </a>
-        <button class="fav-btn ${isFav?'active':''}"
-          style="position:absolute;top:8px;right:8px"
-          onclick="toggleFav('${esc(cat)}','${esc(sub)}','${esc(link.name)}',this)"
-          title="Favorite">★</button>
-      </div>`;
-  }).join('');
-
-  // Restore favs display after hiding
-  if (FAVORITES.size) favsSection.style.display = '';
-}
-
-function highlight(text, q) {
-  if (!q) return text;
-  const idx = text.toLowerCase().indexOf(q.toLowerCase());
-  if (idx < 0) return text;
-  return text.slice(0,idx) +
-    `<mark style="background:rgba(79,140,255,.3);color:var(--accent);border-radius:3px">${text.slice(idx,idx+q.length)}</mark>` +
-    text.slice(idx+q.length);
-}
-
-// ══════════════════════════════════════════
-//  MODAL
-// ══════════════════════════════════════════
-function openModal() {
-  document.getElementById('jsonEditor').value = JSON.stringify(DATA, null, 2);
-  document.getElementById('modalOverlay').classList.add('active');
-}
-function closeModal() {
-  document.getElementById('modalOverlay').classList.remove('active');
-}
-function saveData() {
-  try {
-    DATA = JSON.parse(document.getElementById('jsonEditor').value);
-    saveState();
-    closeModal();
-    renderAll();
-    showToast('✅ Data saved successfully');
-  } catch(e) {
-    showToast('❌ Invalid JSON: ' + e.message);
-  }
-}
-
-// ══════════════════════════════════════════
-//  EXPORT
-// ══════════════════════════════════════════
-function exportData() {
-  const blob = new Blob([JSON.stringify(DATA, null, 2)], {type:'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'csc-services.json';
-  a.click();
-  showToast('📥 JSON exported');
-}
-
-// ══════════════════════════════════════════
-//  TOAST
-// ══════════════════════════════════════════
-let toastTimer;
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
-}
-
-// ══════════════════════════════════════════
-//  KEYBOARD
-// ══════════════════════════════════════════
-document.addEventListener('keydown', e => {
-  if (e.key === '/' && document.activeElement !== document.getElementById('searchInput')) {
-    e.preventDefault();
-    document.getElementById('searchInput').focus();
-  }
-  if (e.key === 'Escape') {
-    document.getElementById('searchInput').value = '';
-    doSearch('');
-    document.getElementById('searchInput').blur();
-    closeModal();
-  }
-});
-
-// Close modal on overlay click
-document.getElementById('modalOverlay').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
-
-// ══════════════════════════════════════════
-//  INIT
-// ══════════════════════════════════════════
-function renderAll() {
-  renderCategories();
-  renderFavs();
-  renderQuick();
-}
-
-loadState();
-renderAll();
-</script>
+<!-- SCRIPTS — order matters -->
+<script src="data.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
