@@ -4,293 +4,281 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Janaseva Kendram — CSC Dashboard</title>
-  <meta name="description" content="CSC Operations Dashboard — Thennala Westbazar">
+  <meta name="description" content="CSC Service Dashboard — Ismail KV, Thennala Westbazar">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- ═══════════════════════════ HEADER ═══════════════════════════ -->
+<!-- ═══════════════ HEADER ═══════════════ -->
 <header class="header">
+  <div class="header-top">
 
-  <div class="brand">
-    <!-- Replace logo.png with your actual logo file -->
-    <img src="logo.png" alt="Janaseva Kendram Logo" class="brand-logo"
-         onerror="this.style.display='none';document.getElementById('logoFallback').style.display='flex'">
-    <div class="brand-logo-placeholder" id="logoFallback" style="display:none">🏛</div>
-    <div class="brand-text">
-      <div class="brand-name">Janaseva Kendram</div>
-      <div class="brand-sub">Thennala Westbazar · CSC Center</div>
+    <!-- Logo + Brand -->
+    <div class="logo-area">
+      <div class="logo-box" id="logo-box">
+        <!-- Logo image goes here. If no image, fallback text shows. -->
+        <img id="logo-img" src="logo.png" alt="Logo"
+             onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='flex'">
+        <span class="logo-fallback" id="logo-fallback" style="display:none">ജ</span>
+      </div>
+      <div class="brand-text">
+        <div class="brand-name">ജനസേവ കേന്ദ്രം</div>
+        <div class="brand-sub">Janaseva Kendram · Common Service Centre</div>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="hcenter">
+      <div class="search-wrap">
+        <span class="s-icon">⌕</span>
+        <input type="text" id="searchInput" placeholder="Search any service, certificate, scheme…" autocomplete="off" spellcheck="false">
+        <button class="s-clear" onclick="clearSearch()" title="Clear">✕</button>
+        <span class="s-key">/ to search</span>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="hactions">
+      <button class="hbtn" onclick="openJsonEditor()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        <span>Edit JSON</span>
+      </button>
+      <button class="hbtn" onclick="exportJson()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span>Export</span>
+      </button>
+      <button class="hbtn" onclick="importJson()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <span>Import</span>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Stats + contact bar -->
+  <div class="hstats">
+    <div class="stat">
+      <span class="stat-dot" style="background:#4ade80"></span>
+      <span class="stat-val" id="stat-cats">0</span>
+      <span>Categories</span>
+    </div>
+    <div class="stat">
+      <span class="stat-dot"></span>
+      <span class="stat-val" id="stat-subs">0</span>
+      <span>Subcategories</span>
+    </div>
+    <div class="stat">
+      <span class="stat-dot"></span>
+      <span class="stat-val" id="stat-links">0</span>
+      <span>Links</span>
+    </div>
+    <div class="stat">
+      <span class="stat-dot" style="background:#fde68a"></span>
+      <span class="stat-val" id="stat-favs">0</span>
+      <span>Favourites</span>
+    </div>
+    <div class="hinfo">
+      <span>📍 Thennala Westbazar</span>
+      <span>·</span>
+      <span>👤 Ismail KV</span>
+      <span>·</span>
+      <span>📞 <a href="tel:9847816928">9847816928</a></span>
     </div>
   </div>
-
-  <div class="search-wrap">
-    <span class="search-icon">⌕</span>
-    <input type="text" id="searchInput" placeholder="Search any service... (press / to focus)"
-           autocomplete="off" oninput="onSearch(this.value)">
-    <button class="search-clear" id="searchClear" onclick="clearSearch()" title="Clear search">✕</button>
-  </div>
-
-  <div class="header-right">
-    <div class="contact-badge">
-      <span class="phone-icon">📞</span>
-      <span>Ismail KV — 9847816928</span>
-    </div>
-    <button class="btn-header" onclick="exportData()" title="Export data as JSON">
-      ↓ <span>Export</span>
-    </button>
-    <button class="btn-header" onclick="openImport()" title="Import JSON data">
-      ↑ <span>Import</span>
-    </button>
-  </div>
-
 </header>
 
-<!-- ═══════════════════════════ MAIN ═══════════════════════════ -->
+<!-- ═══════════════ MAIN ═══════════════ -->
 <main class="main">
 
-  <!-- FAVORITES STRIP -->
-  <section class="strip" id="favsSection">
-    <div class="strip-title"><span>⭐</span> Favorites</div>
-    <div class="strip-links" id="favsLinks"></div>
-  </section>
-
-  <!-- RECENT STRIP -->
-  <section class="strip">
-    <div class="strip-title"><span>⚡</span> Recently Used</div>
-    <div class="strip-links" id="recentLinks">
-      <span class="empty-strip">Links you click will appear here for quick access</span>
+  <!-- Favourites Panel -->
+  <div id="favs-panel" style="display:none; margin-bottom:18px">
+    <div class="slabel">⭐ Favourites</div>
+    <div class="qpanel">
+      <div class="chips" id="favs-chips"></div>
     </div>
-  </section>
-
-  <!-- SEARCH RESULTS PANE -->
-  <section id="searchPane">
-    <div class="search-header">
-      <div class="search-header-text" id="searchTitle"></div>
-    </div>
-    <div class="search-grid" id="searchGrid"></div>
-  </section>
-
-  <!-- CATEGORIES PANE -->
-  <div id="categoriesPane">
-    <div class="cats-grid" id="catsGrid"></div>
   </div>
+
+  <!-- Quick Row: Recent + shortcuts -->
+  <div class="quick-row" id="quick-row">
+    <div class="qpanel">
+      <div class="qp-title"><span class="qp-icon">⚡</span> Recently Used</div>
+      <div class="chips" id="recent-chips">
+        <span class="empty">⚡ Clicked links appear here</span>
+      </div>
+    </div>
+    <div class="qpanel">
+      <div class="qp-title"><span class="qp-icon">⌨️</span> Shortcuts</div>
+      <div class="chips" style="flex-direction:column;gap:4px;align-items:flex-start">
+        <span style="font-size:12px;color:var(--muted2)">
+          <kbd style="background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:var(--mono);font-size:11px">/</kbd>
+          Focus search
+        </span>
+        <span style="font-size:12px;color:var(--muted2)">
+          <kbd style="background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:var(--mono);font-size:11px">Esc</kbd>
+          Clear / Close
+        </span>
+        <span style="font-size:12px;color:var(--muted2)">
+          Click <strong style="color:var(--text2)">★</strong> on any link to favourite it
+        </span>
+        <span style="font-size:12px;color:var(--muted2)">
+          Click <strong style="color:var(--text2)">✏️</strong> to edit · <strong style="color:var(--text2)">🗑</strong> to delete
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Panel (hidden when no query) -->
+  <div class="search-panel" id="search-panel">
+    <div class="sp-header">
+      <div class="sp-count" id="sp-count"></div>
+    </div>
+    <div class="search-grid" id="search-grid"></div>
+  </div>
+
+  <!-- Categories Label -->
+  <div class="slabel" style="margin-bottom:14px">📂 All Services</div>
+
+  <!-- Category Grid -->
+  <div class="cat-grid" id="cat-grid"></div>
 
 </main>
 
-<!-- ═══════════════════════════ MODALS ═══════════════════════════ -->
+<!-- ═══════════════ TOAST CONTAINER ═══════════════ -->
+<div class="toast-wrap" id="toast-wrap"></div>
 
-<!-- ADD CATEGORY -->
-<div class="overlay" id="modalAddCat">
+<!-- ═══════════════════════════════════════════════
+     MODALS
+═══════════════════════════════════════════════ -->
+
+<!-- ── Category Modal ── -->
+<div class="overlay" id="cat-overlay">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">➕ Add New Category</div>
-      <button class="modal-close" onclick="closeModal('modalAddCat')">✕</button>
+    <div class="modal-head">
+      <span class="modal-title" id="cat-modal-title">Add Category</span>
+      <button class="modal-x" onclick="closeOverlay('cat-overlay')">✕</button>
     </div>
     <div class="modal-body">
-      <div class="form-group">
-        <label class="form-label">Category Name</label>
-        <input class="form-input" id="addCatName" placeholder="e.g. Banking Services" maxlength="60">
+      <div class="fg">
+        <label class="fl">Category Name</label>
+        <input class="fi" id="cat-name-input" placeholder="e.g. Government Services" maxlength="60">
       </div>
-      <div class="form-group">
-        <label class="form-label">Icon (Emoji)</label>
-        <input class="form-input" id="addCatIcon" placeholder="Paste emoji, e.g. 🏦" maxlength="4" style="font-size:20px">
-        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px" id="addCatIconGrid"></div>
+      <div class="fg">
+        <label class="fl">Icon (Emoji)</label>
+        <input class="fi" id="cat-icon-input" placeholder="🏛️" maxlength="5" style="font-size:20px;text-align:center;width:60px">
+        <div class="emoji-grid" id="cat-emoji-grid"></div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Color</label>
-        <div class="color-row" id="addCatColorRow"></div>
-        <input type="hidden" id="addCatColor" value="#3b82f6">
+      <div class="fg">
+        <label class="fl">Color</label>
+        <div class="color-grid" id="cat-color-grid" data-selected="#1a56db"></div>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modalAddCat')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveAddCat()">Add Category</button>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeOverlay('cat-overlay')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveCat()">Save Category</button>
     </div>
   </div>
 </div>
 
-<!-- EDIT CATEGORY -->
-<div class="overlay" id="modalEditCat">
+<!-- ── Subcategory Modal ── -->
+<div class="overlay" id="sub-overlay">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">⚙ Edit Category</div>
-      <button class="modal-close" onclick="closeModal('modalEditCat')">✕</button>
+    <div class="modal-head">
+      <span class="modal-title" id="sub-modal-title">Add Subcategory</span>
+      <button class="modal-x" onclick="closeOverlay('sub-overlay')">✕</button>
     </div>
     <div class="modal-body">
-      <div class="form-group">
-        <label class="form-label">Category Name</label>
-        <input class="form-input" id="editCatName" maxlength="60">
+      <div class="fg">
+        <label class="fl">Under Category</label>
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:8px 12px;font-size:13px;font-weight:600;color:var(--brand)" id="sub-cat-label"></div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Icon (Emoji)</label>
-        <input class="form-input" id="editCatIcon" maxlength="4" style="font-size:20px">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Color</label>
-        <div class="color-row" id="editCatColorRow"></div>
-        <input type="hidden" id="editCatColor">
-      </div>
-      <div class="danger-zone">
-        <div class="danger-zone-title">⚠ Danger Zone</div>
-        <button class="btn btn-danger" onclick="deleteCategory()" style="width:100%">
-          🗑 Delete This Category (and all links)
-        </button>
+      <div class="fg">
+        <label class="fl">Subcategory Name</label>
+        <input class="fi" id="sub-name-input" placeholder="e.g. Aadhaar, Electricity, Driving Licence" maxlength="60">
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modalEditCat')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveEditCat()">Save Changes</button>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeOverlay('sub-overlay')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveSub()">Save Subcategory</button>
     </div>
   </div>
 </div>
 
-<!-- ADD SUBCATEGORY -->
-<div class="overlay" id="modalAddSubcat">
+<!-- ── Link Modal ── -->
+<div class="overlay" id="link-overlay">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="modalAddSubcatTitle">Add Subcategory</div>
-      <button class="modal-close" onclick="closeModal('modalAddSubcat')">✕</button>
+    <div class="modal-head">
+      <span class="modal-title" id="link-modal-title">Add Link</span>
+      <button class="modal-x" onclick="closeOverlay('link-overlay')">✕</button>
     </div>
     <div class="modal-body">
-      <div class="form-group">
-        <label class="form-label">Subcategory Name</label>
-        <input class="form-input" id="addSubcatName" placeholder="e.g. Savings Account, Birth Certificate..."
-               maxlength="60" onkeydown="if(event.key==='Enter')saveAddSubcat()">
+      <div class="fg">
+        <label class="fl">Location</label>
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:8px 12px;font-size:12px;color:var(--muted);font-family:var(--mono)" id="link-cat-label"></div>
+      </div>
+      <div class="fg">
+        <label class="fl">Link Name *</label>
+        <input class="fi" id="link-name-input" placeholder="e.g. Pay KSEB Bill" maxlength="80">
+      </div>
+      <div class="fg">
+        <label class="fl">URL *</label>
+        <input class="fi" id="link-url-input" placeholder="https://example.gov.in/" type="url">
+      </div>
+      <div class="fg">
+        <label class="fl">Description <span style="color:var(--muted2);font-weight:400">(shown in search results)</span></label>
+        <textarea class="fta" id="link-desc-input" placeholder="Short description of what this link does, fees, requirements…" rows="2"></textarea>
+      </div>
+      <div class="fg">
+        <label class="fl">Search Keywords <span style="color:var(--muted2);font-weight:400">(comma separated, improves search)</span></label>
+        <input class="fi" id="link-kw-input" placeholder="e.g. electricity bill, current bill, kseb, pay bill">
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modalAddSubcat')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveAddSubcat()">Add Subcategory</button>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeOverlay('link-overlay')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveLink()">Save Link</button>
     </div>
   </div>
 </div>
 
-<!-- EDIT SUBCATEGORY -->
-<div class="overlay" id="modalEditSubcat">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">✏ Rename Subcategory</div>
-      <button class="modal-close" onclick="closeModal('modalEditSubcat')">✕</button>
+<!-- ── Delete Confirm Modal ── -->
+<div class="overlay" id="del-overlay">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-head">
+      <span class="modal-title" style="color:var(--red)">⚠️ Confirm Delete</span>
+      <button class="modal-x" onclick="closeOverlay('del-overlay')">✕</button>
     </div>
     <div class="modal-body">
-      <div class="form-group">
-        <label class="form-label">Category</label>
-        <div style="font-size:12px;color:var(--text3);padding:4px 0" id="editSubcatCatName"></div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">New Subcategory Name</label>
-        <input class="form-input" id="editSubcatName" maxlength="60"
-               onkeydown="if(event.key==='Enter')saveEditSubcat()">
-      </div>
+      <p class="confirm-msg" id="del-msg" style="font-size:14px;color:var(--text2);line-height:1.6"></p>
+      <p style="margin-top:10px;font-size:12px;color:var(--muted)">This action cannot be undone.</p>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modalEditSubcat')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveEditSubcat()">Rename</button>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeOverlay('del-overlay')">Cancel</button>
+      <button class="btn btn-danger" onclick="doDelete()">Delete</button>
     </div>
   </div>
 </div>
 
-<!-- ADD LINK -->
-<div class="overlay" id="modalAddLink">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="modalAddLinkTitle">Add Link</div>
-      <button class="modal-close" onclick="closeModal('modalAddLink')">✕</button>
+<!-- ── JSON Editor Modal ── -->
+<div class="overlay" id="json-overlay">
+  <div class="modal wide">
+    <div class="modal-head">
+      <span class="modal-title">📋 JSON Data Editor</span>
+      <button class="modal-x" onclick="closeOverlay('json-overlay')">✕</button>
     </div>
     <div class="modal-body">
-      <div class="form-group">
-        <label class="form-label">Service Name *</label>
-        <input class="form-input" id="addLinkName" placeholder="e.g. Pay Water Bill" maxlength="80">
-      </div>
-      <div class="form-group">
-        <label class="form-label">URL *</label>
-        <input class="form-input" id="addLinkUrl" placeholder="https://example.gov.in/" type="url">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Description</label>
-        <textarea class="form-textarea" id="addLinkDesc" placeholder="Short description of what this service does, who can use it, what it requires..."></textarea>
-        <div class="form-hint">Helps with smart search — describe the service in plain words</div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Search Keywords</label>
-        <input class="form-input" id="addLinkKeywords" placeholder="e.g. water bill, kwa, water tax, pay water (comma separated)">
-        <div class="form-hint">Add alternate names, Malayalam transliterations, misspellings etc.</div>
-      </div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:10px">
+        Edit raw service data. Each entry: <code style="background:var(--bg2);padding:1px 5px;border-radius:4px;font-family:var(--mono);font-size:11px">{"name","url","desc","keywords":[]}</code>
+      </p>
+      <textarea class="jtxt" id="json-ta" spellcheck="false"></textarea>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modalAddLink')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveAddLink()">Add Link</button>
+    <div class="modal-foot" style="gap:8px;flex-wrap:wrap">
+      <button class="btn btn-ghost btn-sm" onclick="resetData()" style="color:var(--red);margin-right:auto">Reset to Default</button>
+      <button class="btn btn-ghost" onclick="closeOverlay('json-overlay')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveJson()">Save JSON</button>
     </div>
   </div>
 </div>
 
-<!-- EDIT LINK -->
-<div class="overlay" id="modalEditLink">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">✏ Edit Link</div>
-      <button class="modal-close" onclick="closeModal('modalEditLink')">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-group">
-        <label class="form-label">Service Name *</label>
-        <input class="form-input" id="editLinkName" maxlength="80">
-      </div>
-      <div class="form-group">
-        <label class="form-label">URL *</label>
-        <input class="form-input" id="editLinkUrl" type="url">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Description</label>
-        <textarea class="form-textarea" id="editLinkDesc"></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Search Keywords</label>
-        <input class="form-input" id="editLinkKeywords" placeholder="comma separated keywords">
-        <div class="form-hint">Add alternate names, transliterations, common misspellings</div>
-      </div>
-      <div class="danger-zone">
-        <div class="danger-zone-title">⚠ Danger Zone</div>
-        <button class="btn btn-danger" onclick="deleteLink()" style="width:100%">🗑 Delete This Link</button>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modalEditLink')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveEditLink()">Save Changes</button>
-    </div>
-  </div>
-</div>
-
-<!-- IMPORT -->
-<div class="overlay" id="modalImport">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">📂 Import Data</div>
-      <button class="modal-close" onclick="closeModal('modalImport')">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-group">
-        <label class="form-label">Select JSON File</label>
-        <input type="file" accept=".json" id="importFile" class="form-input" onchange="handleImport(event)">
-        <div class="form-hint">Import a previously exported janaseva-data.json file</div>
-      </div>
-      <div class="danger-zone">
-        <div class="danger-zone-title">⚠ Reset</div>
-        <button class="btn btn-danger" onclick="resetData()" style="width:100%">
-          🔄 Reset All Data to Default
-        </button>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modalImport')">Close</button>
-    </div>
-  </div>
-</div>
-
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
-
-<!-- SCRIPTS — order matters -->
+<!-- ════ SCRIPTS ════ -->
 <script src="data.js"></script>
 <script src="app.js"></script>
 </body>
