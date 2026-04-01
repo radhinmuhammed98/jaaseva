@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSC Dashboard</title>
+
+<style>
+body {
+    font-family: Arial;
+    margin: 0;
+    background: #121212;
+    color: white;
+}
+
+header {
+    padding: 10px;
+    background: #1f1f1f;
+    position: sticky;
+    top: 0;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+}
+
+.container {
+    padding: 10px;
+}
+
+.card {
+    background: #1e1e1e;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.title {
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.sub {
+    margin-left: 15px;
+    display: none;
+}
+
+.link {
+    margin-left: 30px;
+    cursor: pointer;
+    padding: 5px 0;
+}
+
+.link:hover {
+    color: #00bcd4;
+}
+
+.star {
+    float: right;
+    cursor: pointer;
+}
+
+.favorite {
+    color: gold;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+    <input type="text" id="search" placeholder="Search...">
+</header>
+
+<div class="container" id="app"></div>
+
+<script>
+
+// 🔷 DATA STRUCTURE
+let data = JSON.parse(localStorage.getItem("cscData")) || {
+    "Bill Payments": {
+        "Electricity": [
+            {name: "Pay Bill", url: "https://kseb.in"},
+            {name: "Quick Pay", url: "https://kseb.in/quick"}
+        ],
+        "Water": [
+            {name: "Water Bill", url: "#"}
+        ]
+    },
+    "Government": {
+        "Aadhaar": [
+            {name: "Update Aadhaar", url: "https://uidai.gov.in"},
+            {name: "Download Aadhaar", url: "#"}
+        ],
+        "PAN": [
+            {name: "New PAN", url: "#"},
+            {name: "PAN Status", url: "#"}
+        ]
+    },
+    "Banking": {
+        "UPI": [
+            {name: "Google Pay", url: "https://pay.google.com"},
+            {name: "PhonePe", url: "https://phonepe.com"}
+        ]
+    }
+};
+
+let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+
+// 🔷 RENDER FUNCTION
+function render(filter="") {
+    const app = document.getElementById("app");
+    app.innerHTML = "";
+
+    for (let category in data) {
+        let catDiv = document.createElement("div");
+        catDiv.className = "card";
+
+        let title = document.createElement("div");
+        title.className = "title";
+        title.innerText = category;
+        title.onclick = () => toggle(catDiv);
+
+        catDiv.appendChild(title);
+
+        let subContainer = document.createElement("div");
+        subContainer.className = "sub";
+
+        for (let sub in data[category]) {
+            let subTitle = document.createElement("div");
+            subTitle.className = "title";
+            subTitle.innerText = sub;
+            subTitle.onclick = () => toggle(subTitle);
+
+            let linkContainer = document.createElement("div");
+            linkContainer.className = "sub";
+
+            data[category][sub].forEach(item => {
+                if (filter && !item.name.toLowerCase().includes(filter)) return;
+
+                let link = document.createElement("div");
+                link.className = "link";
+                link.innerHTML = item.name;
+
+                link.onclick = () => window.open(item.url, "_blank");
+
+                let star = document.createElement("span");
+                star.className = "star";
+                star.innerText = "★";
+
+                if (favorites.includes(item.name)) {
+                    star.classList.add("favorite");
+                }
+
+                star.onclick = (e) => {
+                    e.stopPropagation();
+                    toggleFavorite(item.name);
+                };
+
+                link.appendChild(star);
+                linkContainer.appendChild(link);
+            });
+
+            subContainer.appendChild(subTitle);
+            subContainer.appendChild(linkContainer);
+        }
+
+        catDiv.appendChild(subContainer);
+        app.appendChild(catDiv);
+    }
+}
+
+// 🔷 TOGGLE FUNCTION
+function toggle(el) {
+    let next = el.nextElementSibling;
+    if (next) {
+        next.style.display = next.style.display === "block" ? "none" : "block";
+    }
+}
+
+// 🔷 FAVORITES
+function toggleFavorite(name) {
+    if (favorites.includes(name)) {
+        favorites = favorites.filter(f => f !== name);
+    } else {
+        favorites.push(name);
+    }
+    localStorage.setItem("favorites", JSON.stringify(favorites));
+    render();
+}
+
+// 🔷 SEARCH
+document.getElementById("search").addEventListener("input", (e) => {
+    render(e.target.value.toLowerCase());
+});
+
+// INIT
+render();
+
+</script>
+
+</body>
+</html>
